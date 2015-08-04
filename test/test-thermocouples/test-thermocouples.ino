@@ -17,20 +17,9 @@
 #include <SPI.h>
 #include "Adafruit_MAX31855.h"
 
-// Default connection is using software SPI, but comment and uncomment one of
-// the two examples below to switch between software SPI and hardware SPI:
+#define CS   10
 
-// Example creating a thermocouple instance with software SPI on any three
-// digital IO pins.
-#define DO   3
-#define CS   4
-#define CLK  5
-Adafruit_MAX31855 thermocouple(CLK, CS, DO);
-
-// Example creating a thermocouple instance with hardware SPI (Uno/Mega only)
-// on a given CS pin.
-//#define CS   10
-//Adafruit_MAX31855 thermocouple(CS);
+Adafruit_MAX31855 thermocouple(CS);
 
 void setup() {
   Serial.begin(9600);
@@ -52,8 +41,8 @@ void loop() {
      Serial.print("C = "); 
      Serial.println(c);
    }
-   //Serial.print("F = ");
-   //Serial.println(thermocouple.readFarenheit());
+   Serial.print("F = ");
+   Serial.println(thermocouple.readFarenheit());
  
    delay(1000);
 }
