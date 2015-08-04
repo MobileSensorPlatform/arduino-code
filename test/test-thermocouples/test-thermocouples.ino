@@ -17,9 +17,13 @@
 #include <SPI.h>
 #include "Adafruit_MAX31855.h"
 
-#define CS   10
+#define CS_A   9
+#define CS_B   6
+#define CS_C   5
 
-Adafruit_MAX31855 thermocouple(CS);
+Adafruit_MAX31855 thermoA(CS_A);
+Adafruit_MAX31855 thermoB(CS_B);
+Adafruit_MAX31855 thermoC(CS_C);
 
 void setup() {
   Serial.begin(9600);
@@ -31,18 +35,15 @@ void setup() {
 
 void loop() {
   // basic readout test, just print the current temp
-   Serial.print("Internal Temp = ");
-   Serial.println(thermocouple.readInternal());
+   Serial.print("Thermo A Internal Temp (in Celsius) = ");
+   Serial.println(thermoA.readInternal());
 
-   double c = thermocouple.readCelsius();
-   if (isnan(c)) {
+   double f = thermoA.readFarenheit();
+   if (isnan(f)) {
      Serial.println("Something wrong with thermocouple!");
    } else {
-     Serial.print("C = "); 
-     Serial.println(c);
-   }
-   Serial.print("F = ");
-   Serial.println(thermocouple.readFarenheit());
- 
+     Serial.print("F = "); 
+     Serial.println(f);
+   } 
    delay(1000);
 }
