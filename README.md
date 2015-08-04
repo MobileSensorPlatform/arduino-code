@@ -2,6 +2,7 @@ Arduino code for reading temperatures, talking to a GPS, and logging to an SD ca
 
 ### Pin usage ###
 
+  * USB Communication with host (for debugging keep open) on 0, 1
   * Powerboost shield: uses only 5V and GND pins.
   * Thermocouple boards (MAX31855, qty. 3)
     * CLK: 13
