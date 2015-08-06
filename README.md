@@ -9,7 +9,7 @@ Arduino code for reading temperatures, talking to a GPS, and logging to an SD ca
     * CS: 10, 4, 52 for CS0, CS1, and CS2 respectively
   * GPS/SD logging shield
     * For GPS, switch on shield set to SoftSerial, then jumpered 7 -> 18 (TX1), 8 -> 19 (RX1) 
-    * For SD card, SPI on 13-10
+    * For SD card, software SPI on 13-10, using [Adafruit SD library] (https://github.com/adafruit/SD), initialized with `SD.begin(chipSelect, 11, 12, 13)`
   * XBee shield
     * DOUT: 3
     * DIN: 2
