@@ -1,49 +1,51 @@
-/*************************************************** 
-  This is an example for the Adafruit Thermocouple Sensor w/MAX31855K
-
-  Designed specifically to work with the Adafruit Thermocouple Sensor
-  ----> https://www.adafruit.com/products/269
-
-  These displays use SPI to communicate, 3 pins are required to  
-  interface
-  Adafruit invests time and resources providing this open source code, 
-  please support Adafruit and open-source hardware by purchasing 
-  products from Adafruit!
-
-  Written by Limor Fried/Ladyada for Adafruit Industries.  
-  BSD license, all text above must be included in any redistribution
- ****************************************************/
+/* MAX31855 thermocouple amp with Arduino Due */
+/* test code based on http://forums.adafruit.com/viewtopic.php?f=25&t=45336#p364994 */
 
 #include <SPI.h>
-#include "Adafruit_MAX31855.h"
 
-#define CS_A   9
-#define CS_B   6
-#define CS_C   5
-
-Adafruit_MAX31855 thermoA(CS_A);
-Adafruit_MAX31855 thermoB(CS_B);
-Adafruit_MAX31855 thermoC(CS_C);
+#define CS2 52
 
 void setup() {
-  Serial.begin(9600);
-  
-  Serial.println("MAX31855 test");
-  // wait for MAX chip to stabilize
-  delay(500);
+    Serial.begin(9600);
+    SPI.begin(CS2);
+}
+
+double readThermocouple(int slaveSelectPin)
+{
+    byte data1 = SPI.transfer(slaveSelectPin, 0, SPI_CONTINUE);
+    byte data2 = SPI.transfer(slaveSelectPin, 0, SPI_CONTINUE);
+    byte data3 = SPI.transfer(slaveSelectPin, 0, SPI_CONTINUE);
+    byte data4 = SPI.transfer(slaveSelectPin, 0, SPI_LAST);
+
+    word temp1 = word(data1, data2);
+    word temp2 = word(data3, data4);
+
+    bool ned = false;
+    if (temp1 &0x8000){
+        ned = true;
+    }
+
+    if (temp1 & 0x1)
+    {
+        Serial.println("Thermocouple error!");
+    if (temp2 & 0x1)
+        Serial.println("Open circuit");
+    if (temp2 & 0x2)
+        Serial.println("VCC Short");
+    if (temp2 & 0x4)
+        Serial.println("GND Short");
+    }
+
+    temp1 &= 0x7FFC;
+    temp1 >>= 2;
+    double celcius = temp1;
+
+    double temp = celcius / 4;
+
+    return temp;
 }
 
 void loop() {
-  // basic readout test, just print the current temp
-   Serial.print("Thermo A Internal Temp (in Celsius) = ");
-   Serial.println(thermoA.readInternal());
-
-   double f = thermoA.readFarenheit();
-   if (isnan(f)) {
-     Serial.println("Something wrong with thermocouple!");
-   } else {
-     Serial.print("F = "); 
-     Serial.println(f);
-   } 
-   delay(1000);
+    Serial.println(readThermocouple(CS2), 2);
+    delay(500);
 }
