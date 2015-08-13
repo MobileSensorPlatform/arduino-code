@@ -1,5 +1,11 @@
 Arduino code for reading temperatures, talking to a GPS, and logging to an SD card and via XBee
 
+### Software prerequisites ###
+
+Install Adafruit-SD, Adafruit-GPS, and Adafruit-MAX31855 libraries.
+
+Tested with Arduino IDE 1.6.5. For Due support, go to Tools > Board > Boards Manager and install 32-bit Cortex M3 package.
+
 ### Pin usage ###
 
   * USB communication with host on 0, 1 (keep open for debugging)
