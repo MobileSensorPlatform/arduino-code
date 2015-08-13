@@ -3,10 +3,14 @@
 
 #include <SPI.h>
 
+#define CS0 10
+#define CS1 4
 #define CS2 52
 
 void setup() {
     Serial.begin(9600);
+    SPI.begin(CS0);
+    SPI.begin(CS1);
     SPI.begin(CS2);
 }
 
@@ -46,6 +50,9 @@ double readThermocouple(int slaveSelectPin)
 }
 
 void loop() {
+    Serial.println("\nTemps:\n");
+    Serial.println(readThermocouple(CS0), 2);
+    Serial.println(readThermocouple(CS1), 2);
     Serial.println(readThermocouple(CS2), 2);
     delay(500);
 }
