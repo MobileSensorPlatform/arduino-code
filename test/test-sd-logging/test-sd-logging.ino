@@ -2,29 +2,10 @@
 #include <SD.h>
 
 // Set the pins used
-#define chipSelect 10
+#define chipSelect 9
 #define ledPin 13
 
 File logfile;
-
-// blink out an error code
-void error(uint8_t errno) {
-  Serial.print("SD error: ");
-  Serial.print(errno);
-  Serial.print('\n');
-  while(1) {
-    uint8_t i;
-    for (i=0; i<errno; i++) {
-      digitalWrite(ledPin, HIGH);
-      delay(100);
-      digitalWrite(ledPin, LOW);
-      delay(100);
-    }
-    for (i=errno; i<10; i++) {
-      delay(200);
-    }
-  }
-}
 
 void setup() {
   Serial.begin(115200);
@@ -33,13 +14,14 @@ void setup() {
  
   // make sure that the default chip select pin is set to
   // output, even if you don't use it:
-  pinMode(10, OUTPUT);
+  //pinMode(10, OUTPUT);
+  pinMode(chipSelect, OUTPUT);
 
   // see if the card is present and can be initialized:
   if (!SD.begin(chipSelect, 11, 12, 13)) {
-  //if (!SD.begin(chipSelect)) {      // if you're using an UNO, you can use this line instead
     Serial.println("Card init. failed!");
-    error(2);
+  } else {
+    Serial.println("Card successfully initialized.");
   }
 }
 
