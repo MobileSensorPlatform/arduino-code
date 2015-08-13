@@ -2,15 +2,16 @@
 #include <SD.h>
 #include <SPI.h>
 
-#define CS0 10
-#define CS1 4
-#define CS2 52
+#define CS0        10
+#define CS1        4
+#define CS2        52
+#define SD_CARD_CS 9
 
 // For hardware serial 1 (recommended):
 //   GPS TX to Arduino Due Serial1 RX pin 19
 //   GPS RX to Arduino Due Serial1 TX pin 18
 #define GPSPort Serial1
-#define GPSECHO  true
+#define GPSECHO  false
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
 // Set to 'true' if you want to debug and listen to the raw GPS sentences. 
 
@@ -56,9 +57,8 @@ void setupGPS(void) {
 
 void setupSDCard(void) {
     Serial.println("Initializing SD card . . .");
-    pinMode(CS0, OUTPUT);
-    pinMode(CS1, OUTPUT);
-    pinMode(CS2, OUTPUT);
+
+    pinMode(SD_CARD_CS, OUTPUT);
 
     if (!SD.begin(9, 11, 12, 13)) {
         Serial.println("Card init. failed!");
@@ -68,9 +68,15 @@ void setupSDCard(void) {
 
 void setupThermocouples(void) {
     Serial.println("Initializing thermocouples . . .");
+
+    pinMode(CS0, OUTPUT);
+    pinMode(CS1, OUTPUT);
+    pinMode(CS2, OUTPUT);
+
     SPI.begin(CS0);
     SPI.begin(CS1);
     SPI.begin(CS2);
+
     Serial.println('Thermocouples initialized.');
 }
 
@@ -145,4 +151,5 @@ void loop()
               Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
         }
     }
+    Serial2.println("Code is executing.");
 }
