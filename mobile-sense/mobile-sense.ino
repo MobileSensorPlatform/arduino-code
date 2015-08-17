@@ -160,18 +160,21 @@ void loop()
     if (millis() - timer > UPDATE_PERIOD_IN_MILLISECONDS) { 
         timer = millis(); // reset the timer
 
-        Serial.print("20"); Serial.print(GPS.year, DEC); Serial.print("-"); Serial.print(GPS.month, DEC); Serial.print("-"); Serial.print(GPS.day, DEC); Serial.print("T");
-        Serial.print(GPS.hour, DEC); Serial.print(":"); Serial.print(GPS.minute, DEC); Serial.print(":"); Serial.print(GPS.seconds, DEC); Serial.print("Z | ");
-        if (GPS.fix) {
-            Serial.print(GPS.latitude, 4); Serial.print(GPS.lat); Serial.print(", ");
-            Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
+        int chars_formatted = 0;
+        char timestamp[25];
+        char location[25];
+        char temperatures[25];
+        char output[100];
+
+        chars_formatted = sprintf(timestamp, "20%02d-%02d-%02dT%02d:%02d:%02dZ", GPS.year, GPS.month, GPS.day, GPS.hour, GPS.minute, GPS.seconds);
+        if(GPS.fix) {
+            chars_formatted = sprintf(location, "%4f%c, %4f%c", GPS.latitude, GPS.lat, GPS.longitude, GPS.lon);
         } else {
-            Serial.print("Location unknown");
+            chars_formatted = sprintf(location, "Location unknown");
         }
-        Serial.print(" | ");
-        Serial.print(readThermocouple(CS0), 2); Serial.print(", ");
-        Serial.print(readThermocouple(CS1), 2); Serial.print(", ");
-        Serial.print(readThermocouple(CS2), 2); Serial.print("\n");
+        chars_formatted = sprintf(temperatures, "%03.2f, %03.2f, %03.2f", readThermocouple(CS0), readThermocouple(CS1), readThermocouple(CS2));
+        chars_formatted = sprintf(output, "%s | %s | %s\n", timestamp, location, temperatures);
+        Serial.print(output);
+        Serial2.print(output); // send to XBee
     }
-    Serial2.println("Code is executing.");
 }
