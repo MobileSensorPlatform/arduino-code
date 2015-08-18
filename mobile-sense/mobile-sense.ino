@@ -9,6 +9,10 @@
 
 #define UPDATE_PERIOD_IN_MILLISECONDS 2000
 
+#define TIMESTAMP_LENGTH   20
+#define LOCATION_LENGTH    18
+#define TEMPERATURE_LENGTH 21
+
 // For hardware serial 1 (recommended):
 //   GPS TX to Arduino Due Serial1 RX pin 19
 //   GPS RX to Arduino Due Serial1 TX pin 18
@@ -75,7 +79,7 @@ void setupThermocouples(void) {
     SPI.begin(CS1);
     SPI.begin(CS2);
 
-    Serial.println('Thermocouples initialized.');
+    Serial.println("Thermocouples initialized.");
 }
 
 void setupXBee(void) {
@@ -160,20 +164,29 @@ void loop()
     if (millis() - timer > UPDATE_PERIOD_IN_MILLISECONDS) { 
         timer = millis(); // reset the timer
 
-        int chars_formatted = 0;
-        char timestamp[25];
-        char location[25];
-        char temperatures[25];
+        int timestamp_len = 0;
+        int location_len = 0;
+        int temperature_len = 0;
+        int output_len = 0;
+
+        char timestamp[TIMESTAMP_LENGTH + 1];
+        char location[LOCATION_LENGTH + 1];
+        char temperatures[TEMPERATURE_LENGTH + 1];
         char output[100];
 
-        chars_formatted = sprintf(timestamp, "20%02d-%02d-%02dT%02d:%02d:%02dZ", GPS.year, GPS.month, GPS.day, GPS.hour, GPS.minute, GPS.seconds);
+        timestamp_len = sprintf(timestamp, "20%02d-%02d-%02dT%02d:%02d:%02dZ", GPS.year, GPS.month, GPS.day, GPS.hour, GPS.minute, GPS.seconds);
         if(GPS.fix) {
-            chars_formatted = sprintf(location, "%4f%c, %4f%c", GPS.latitude, GPS.lat, GPS.longitude, GPS.lon);
+            location_len = sprintf(location, "%4f%c | %4f%c", GPS.latitude, GPS.lat, GPS.longitude, GPS.lon);
         } else {
-            chars_formatted = sprintf(location, "Location unknown");
+            location_len = sprintf(location, "Location | unknown");
         }
-        chars_formatted = sprintf(temperatures, "%03.2f, %03.2f, %03.2f", readThermocouple(CS0), readThermocouple(CS1), readThermocouple(CS2));
-        chars_formatted = sprintf(output, "%s | %s | %s\n", timestamp, location, temperatures);
+        temperature_len = sprintf(temperatures, "%03.2f | %03.2f | %03.2f", readThermocouple(CS0), readThermocouple(CS1), readThermocouple(CS2));
+
+        if(timestamp_len == TIMESTAMP_LENGTH && location_len == LOCATION_LENGTH && temperature_len == TEMPERATURE_LENGTH) {
+            output_len = sprintf(output, "%s | %s | %s\r\n", timestamp, location, temperatures);
+        } else {
+            output_len = sprintf(output, "Something wrong with buffer lengths: %d, %d, %d\n", timestamp_len, location_len, temperature_len);
+        }
         Serial.print(output);
         Serial2.print(output); // send to XBee
     }
