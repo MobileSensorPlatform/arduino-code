@@ -10,8 +10,8 @@
 #define UPDATE_PERIOD_IN_MILLISECONDS 2000
 
 #define TIMESTAMP_LENGTH   20
-#define LOCATION_LENGTH    18
-#define TEMPERATURE_LENGTH 21
+#define LOCATION_LENGTH    19
+#define TEMPERATURE_LENGTH 24
 
 // For hardware serial 1 (recommended):
 //   GPS TX to Arduino Due Serial1 RX pin 19
@@ -146,11 +146,8 @@ void loop()
     // if a sentence is received, we can check the checksum, parse it...
     if (GPS.newNMEAreceived()) {
         // a tricky thing here is if we print the NMEA sentence, or data
-        // we end up not listening and catching other sentences! 
-        // so be very wary if using OUTPUT_ALLDATA and trytng to print out data
-        //Serial.println(GPS.lastNMEA());   // this also sets the newNMEAreceived() flag to false
-
-        if (!GPS.parse(GPS.lastNMEA())) {   // this also sets the newNMEAreceived() flag to false
+        // we end up not listening and catching other sentences!
+        if (!GPS.parse(GPS.lastNMEA())) { // this also sets the newNMEAreceived() flag to false
             return;  // we can fail to parse a sentence in which case we should just wait for another
         }
     }
@@ -174,13 +171,18 @@ void loop()
         char temperatures[TEMPERATURE_LENGTH + 1];
         char output[100];
 
+        File dataFile = SD.open("datalog.txt", FILE_WRITE);
+        if(!dataFile) {
+            Serial.print("Couldn't open log file for writing.\r\n");
+        }
+
         timestamp_len = sprintf(timestamp, "20%02d-%02d-%02dT%02d:%02d:%02dZ", GPS.year, GPS.month, GPS.day, GPS.hour, GPS.minute, GPS.seconds);
         if(GPS.fix) {
-            location_len = sprintf(location, "%4f%c | %4f%c", GPS.latitude, GPS.lat, GPS.longitude, GPS.lon);
+            location_len = sprintf(location, "%6.2f%c | %6.2f%c", GPS.latitude, GPS.lat, GPS.longitude, GPS.lon);
         } else {
-            location_len = sprintf(location, "Location | unknown");
+            location_len = sprintf(location, "Location | unknown ");
         }
-        temperature_len = sprintf(temperatures, "%03.2f | %03.2f | %03.2f", readThermocouple(CS0), readThermocouple(CS1), readThermocouple(CS2));
+        temperature_len = sprintf(temperatures, "%6.2f | %6.2f | %6.2f", readThermocouple(CS0), readThermocouple(CS1), readThermocouple(CS2));
 
         if(timestamp_len == TIMESTAMP_LENGTH && location_len == LOCATION_LENGTH && temperature_len == TEMPERATURE_LENGTH) {
             output_len = sprintf(output, "%s | %s | %s\r\n", timestamp, location, temperatures);
@@ -189,5 +191,9 @@ void loop()
         }
         Serial.print(output);
         Serial2.print(output); // send to XBee
+        if(dataFile) {
+            dataFile.println(output);
+            dataFile.close();
+        }
     }
 }
