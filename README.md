@@ -22,3 +22,5 @@ Tested with Arduino IDE 1.6.5. For Due support, go to Tools > Board > Boards Man
     * Blobs for pins 2, 3 desoldered
     * DOUT under XBee wired to: 17 (RX2)
     * DIN under XBee wired to: 16 (TX2)
+
+![Schematic](mobile-sensor-platform-schematic.png)
