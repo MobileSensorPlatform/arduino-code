@@ -1,5 +1,5 @@
 #include <Adafruit_GPS.h>
-#include <SD.h>
+#include <SD.h> // USE ADAFRUIT'S SD LIBRARY: https://github.com/adafruit/SD.git
 #include <SPI.h>
 #include <DueTimer.h>
 
@@ -73,7 +73,7 @@ void setupSDCard(void) {
 
     pinMode(SD_CARD_CS, OUTPUT);
 
-    if (!SD.begin(9, 11, 12, 13)) {
+    if (!SD.begin(44,46,48,50)) {
         Serial.println("Card init. failed!");
     }
     Serial.println("Initialized SD card.");
