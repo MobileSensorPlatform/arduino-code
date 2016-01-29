@@ -1,13 +1,14 @@
 #include <Adafruit_GPS.h>
 #include <SD.h>
 #include <SPI.h>
+#include <DueTimer.h>
 
 #define CS0        10
 #define CS1        4
 #define CS2        52
 #define SD_CARD_CS 9
 
-#define UPDATE_PERIOD_IN_MILLISECONDS 2000
+#define UPDATE_FREQUENCY 1 // baby don't hertz me
 
 #define TIMESTAMP_LENGTH   20
 #define LOCATION_LENGTH    19
@@ -23,12 +24,18 @@
 
 /* global variables */
 
+volatile boolean timerState = false;
+boolean timerPrevState = false;
+
 Adafruit_GPS GPS(&GPSPort);
-uint32_t timer = millis();
 
 /* end global variables */
 
 /* functions */
+
+void timerHandler(void) {
+    timerState = !timerState;
+}
 
 void setupGPS(void) {
 
@@ -88,6 +95,12 @@ void setupXBee(void) {
     Serial.println("XBee initialized.");
 }
 
+void setupTimer(void) {
+    Timer3.attachInterrupt(timerHandler);
+    Timer3.setFrequency(UPDATE_FREQUENCY);
+    Timer3.start();
+}
+
 double readThermocouple(int slaveSelectPin)
 {
     byte data1 = SPI.transfer(slaveSelectPin, 0, SPI_CONTINUE);
@@ -132,6 +145,8 @@ void setup()
     setupSDCard();
     setupThermocouples();
     setupXBee();
+
+    setupTimer();
 }
 
 void loop()
@@ -152,14 +167,9 @@ void loop()
         }
     }
 
-    // if millis() or timer wraps around, we'll just reset it
-    if (timer > millis()) {
-        timer = millis();
-    }
-
     // approximately every 2 seconds or so, print out the current stats
-    if (millis() - timer > UPDATE_PERIOD_IN_MILLISECONDS) { 
-        timer = millis(); // reset the timer
+    if (timerState != timerPrevState) { 
+        timerPrevState = timerState;
 
         int timestamp_len = 0;
         int location_len = 0;
