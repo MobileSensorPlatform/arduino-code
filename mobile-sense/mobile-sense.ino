@@ -114,8 +114,8 @@ double readThermocouple(short cspin) {
     temp1 &= 0x7FFC;
     temp1 >>= 2;
 
-    //double celcius = (temp1 / 4);
-    double fahrenheit = (32.0 + 9.0 * temp1) / (4.0 * 5.0);
+    double celcius = (temp1 / 4);
+    double fahrenheit = (32.0 + 1.8 * celcius);
 
     return fahrenheit;
 }
