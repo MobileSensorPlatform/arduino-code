@@ -12,6 +12,7 @@
 
 /* Program Settings */
 #define UPDATE_FREQUENCY 1 // baby don't hertz me
+#define ARDUINO_NAME "BRD3"
 
 /*
  * Here ye'! Proceed with caution!
@@ -251,11 +252,12 @@ void loop() {
         }
         temperature_len = sprintf(temperatures, "%6.2f | %6.2f | %6.2f", readThermocouple(CS0), readThermocouple(CS1), readThermocouple(CS2));
 
-        output_len = sprintf(output, "%s | %s | %s | %s\r\n", timestamp, location, states, temperatures);
+        output_len = sprintf(output, "%s | %s | %s | %s | %s\r\n", ARDUINO_NAME, timestamp, location, states, temperatures);
         debugPrint(output);
         Serial2.print(output); // send to XBee
         if(dataFile) {
             dataFile.println(output);
+            dataFile.flush();
         } 
     }
 }
